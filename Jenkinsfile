@@ -57,7 +57,7 @@ pipeline{
           
           stage('Package on master'){
 			  agent {
-				label 'maaster'
+				label 'master'
 			}
               steps{
 				  echo 'Packaging...'
