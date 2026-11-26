@@ -3,30 +3,64 @@ pipeline{
         jdk 'myjava'
         maven 'mymaven'
     }
+	
 	agent any
-      stages{
-           stage('Checkout'){
-              steps{
-		 echo 'cloning..'
+	
+    stages{
+        stage('Checkout on master'){
+			agent {
+				label 'master'
+			}
+            steps{
+		        echo 'cloning...'
                  git 'https://github.com/mercykola/JUNECLASSPRO1.git'
               }
           }
-          stage('Compile'){
+         
+		stage('Compile on slave1') {
+			agent {
+				label 'slave1'
+			}
               steps{
                   echo 'compiling..'
                   sh 'mvn compile'
-	      }
+	          }
           }
-          stage('CodeReview'){
+		
+          stage('CodeReview on slave2'){
+			  agent {
+				label 'slave2'
+			}
               steps{
 		    
 		  echo 'codeReview'
                   sh 'mvn pmd:pmd'
               }
           }
-          
-          stage('Package'){
+		stage('UnitTEST on slave1') {
+			agent {
+				label 'slave1'
+			}
               steps{
+                  echo 'Testing..'
+                  sh 'mvn test'
+			  }
+          	  post {
+				  success{
+					  junit 'target/surefire-reports/*.xml'
+				  }
+			  }
+		}
+
+
+
+          
+          stage('Package on master'){
+			  agent {
+				label 'master'
+			}
+              steps{
+				  echo 'Packaging...'
                   sh 'mvn package'
               }
           }
